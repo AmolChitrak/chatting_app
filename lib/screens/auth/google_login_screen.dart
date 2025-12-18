@@ -41,7 +41,7 @@ class GoogleLoginScreen extends StatelessWidget {
                 "assets/image/google.png",
                 height: 22,
               ),
-              label: const Text(
+              label:  Text(
                 "Sign in with Google",
                 style: TextStyle(
                   color: AppColors.white,

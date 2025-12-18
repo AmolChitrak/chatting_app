@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../core/widgets/app_dropdown.dart';
+import '../../core/widgets/app_textfield.dart';
 import '../../service/auth_providers.dart';
 import '../../core/constants/app_colors.dart';
 import '../chat/group_chat_screen.dart';
@@ -87,10 +89,10 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 ),
 
                 _label("Full Name"),
-                _input(nameCtrl),
+                Inputtextfiled(nameCtrl),
 
                 _label("Phone"),
-                _input(
+                Inputtextfiled(
                   phoneCtrl,
                   keyboard: TextInputType.phone,
                   filled: true,
@@ -106,30 +108,30 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
                 ),
 
                 _label("Email address"),
-                _input(emailCtrl, enabled: false),
+                Inputtextfiled(emailCtrl, enabled: false),
 
                 _label("Password"),
                 _passwordInput(),
                 const SizedBox(height: 4),
 
                 _label("Address"),
-                _input(addressCtrl, maxLines: 3),
+                Inputtextfiled(addressCtrl, maxLines: 3),
 
                 _label("Country"),
-                _dropdown(country, ["India"], (v) {}),
+                appDropdown(country, ["India"], (v) {}),
 
                 _label("State"),
-                _dropdown(state, ["Gujarat", "Maharashtra"], (v) {
+                appDropdown(state, ["Gujarat", "Maharashtra"], (v) {
                   setState(() => state = v);
                 }),
 
                 _label("City"),
-                _dropdown(city, ["Ahmedabad", "Surat"], (v) {
+                appDropdown(city, ["Ahmedabad", "Surat"], (v) {
                   setState(() => city = v);
                 }),
 
                 _label("Postal Code"),
-                _input(postalCtrl, keyboard: TextInputType.number),
+                Inputtextfiled(postalCtrl, keyboard: TextInputType.number),
 
                 _label("My date of birth"),
                 _datePicker(),
@@ -227,55 +229,65 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     ),
   );
 
-  Widget _input(
-      TextEditingController c, {
-        TextInputType keyboard = TextInputType.text,
-        Widget? prefix,
-        int maxLines = 1,
-        bool enabled = true,
-        bool filled = false,
-        String? hint,
-      }) {
-    return TextFormField(
-      controller: c,
-      enabled: enabled,
-      keyboardType: keyboard,
-      maxLines: maxLines,
-      validator: (v) => v == null || v.isEmpty ? "Required field" : null,
-      style: TextStyle(
-        fontSize: 16,
-        color: AppColors.textPrimary,
-      ),
-      decoration: InputDecoration(
-        hintText: hint,
-        hintStyle: TextStyle(
-          fontSize: 16,
-          color: AppColors.textSecondary,
-        ),
-        contentPadding:
-        const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-        prefixIcon: prefix,
-        filled: filled,
-        fillColor: filled ? AppColors.inputBg : AppColors.white,
-        border: _border(),
-        enabledBorder: _border(),
-        focusedBorder: _border(),
-        disabledBorder: _border(color: AppColors.border.withOpacity(0.5)),
-      ),
-    );
-  }
+  // Widget _input(
+  //     TextEditingController c, {
+  //       TextInputType keyboard = TextInputType.text,
+  //       Widget? prefix,
+  //       int maxLines = 1,
+  //       bool enabled = true,
+  //       bool filled = false,
+  //       String? hint,
+  //     }) {
+  //   return TextFormField(
+  //     controller: c,
+  //     enabled: enabled,
+  //     keyboardType: keyboard,
+  //     maxLines: maxLines,
+  //     validator: (v) => v == null || v.isEmpty ? "Required field" : null,
+  //     style: TextStyle(
+  //       fontSize: 16,
+  //       color: AppColors.textPrimary,
+  //     ),
+  //     decoration: InputDecoration(
+  //       hintText: hint,
+  //       hintStyle: TextStyle(
+  //         fontSize: 16,
+  //         color: AppColors.textSecondary,
+  //       ),
+  //       contentPadding:
+  //       const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+  //       prefixIcon: prefix,
+  //       filled: filled,
+  //       fillColor: filled ? AppColors.inputBg : AppColors.white,
+  //       border: _border(),
+  //       enabledBorder: _border(),
+  //       focusedBorder: _border(),
+  //       disabledBorder: _border(color: AppColors.border.withOpacity(0.5)),
+  //     ),
+  //   );
+  // }
 
   OutlineInputBorder _border({Color? color}) {
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(16),
       borderSide: BorderSide(
-        color: color ?? AppColors.border,
+        color: color ?? AppColors.inputBg,
         width: 1.2,
       ),
     );
   }
 
   Widget _passwordInput() {
+    OutlineInputBorder border({Color? color}) {
+      return OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide(
+          color: color ?? AppColors.inputBg,
+          width: 1.2,
+        ),
+      );
+    }
+
     return TextFormField(
       controller: passwordCtrl,
       obscureText: hidePassword,
@@ -283,9 +295,11 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
           ? "Password must have: uppercase, number & spl character"
           : null,
       decoration: InputDecoration(
-        border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(12),
-        ),
+        border: border(),
+        enabledBorder: border(),
+        focusedBorder: border(),
+        errorBorder: border(color: Colors.redAccent),
+        focusedErrorBorder: border(color: Colors.redAccent),
         suffixIcon: IconButton(
           icon: Icon(
             hidePassword ? Icons.visibility_off : Icons.visibility,
@@ -299,34 +313,35 @@ class _CreateAccountScreenState extends State<CreateAccountScreen> {
     );
   }
 
-  Widget _dropdown(
-      String? value,
-      List<String> items,
-      ValueChanged<String?> onChanged,
-      ) {
-    return DropdownButtonFormField<String>(
-      value: value,
-      icon: Icon(Icons.keyboard_arrow_down, color: AppColors.icon),
-      items: items
-          .map(
-            (e) => DropdownMenuItem<String>(
-          value: e,
-          child: Text(e, style: const TextStyle(fontSize: 16)),
-        ),
-      )
-          .toList(),
-      onChanged: onChanged,
-      validator: (v) => v == null ? "Required field" : null,
-      decoration: InputDecoration(
-        contentPadding:
-        const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-        border: _border(),
-        enabledBorder: _border(),
-        focusedBorder: _border(),
-        errorBorder: _border(color: Colors.redAccent),
-      ),
-    );
-  }
+
+  // Widget _dropdown(
+  //     String? value,
+  //     List<String> items,
+  //     ValueChanged<String?> onChanged,
+  //     ) {
+  //   return DropdownButtonFormField<String>(
+  //     value: value,
+  //     icon: Icon(Icons.keyboard_arrow_down, color: AppColors.icon),
+  //     items: items
+  //         .map(
+  //           (e) => DropdownMenuItem<String>(
+  //         value: e,
+  //         child: Text(e, style: const TextStyle(fontSize: 16)),
+  //       ),
+  //     )
+  //         .toList(),
+  //     onChanged: onChanged,
+  //     validator: (v) => v == null ? "Required field" : null,
+  //     decoration: InputDecoration(
+  //       contentPadding:
+  //       const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
+  //       border: _border(),
+  //       enabledBorder: _border(),
+  //       focusedBorder: _border(),
+  //       errorBorder: _border(color: Colors.redAccent),
+  //     ),
+  //   );
+  // }
 
   Widget _datePicker() {
     return InkWell(
